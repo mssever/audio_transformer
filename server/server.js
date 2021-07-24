@@ -11,6 +11,11 @@ log.setLevel(config.loglevel, false)
 log.debug('config: ', config)
 
 const server = http.createServer(server_callback)
+server
+  .on('connect', socket=>log.debug(`Client ${socket.remoteAddress}:${socket.remotePort} connected to the server at ${socket.localAddress}:${socket.localPort}.`))
+  .on('connection', socket=>log.debug(`Connection established from ${socket.remoteAddress} port ${socket.remotePort} to ${socket.localAddress} port ${socket.localPort}`))
+  .on('request', (req, res) => log.debug(`Request received. URL: ${req.url}. Method: ${req.method}`))
+  .on('upgrade', (req, socket, head) => log.debug(`Upgrade requested. Header: ${head.toString()}`))
 server.listen(config.port, () => log.info(`Server listening on port ${config.port}`))
 
 const emitter = new events.EventEmitter()
@@ -20,32 +25,60 @@ process.on('SIGINT', ()=>util.kill_server(server))
 process.on('SIGHUP', ()=>util.kill_server(server))
 
 function server_callback(req, res) {
-  const {url, method} = req
+  let {url, method} = req
+  url = new URL(url, `http://${req.headers.host}`)
   const chunks = []
   req.on("error", err=>{
     log.error(err)
     req.writeHead(400, {'Content-Type': 'text/plain'})
     req.end('400 Bad Request')
   })
-  res.on("error", err=>{
-    log.error(err)
-    req.writeHead(500, {'Content-Type': 'text/plain'})
-    req.end('500 Internal Server Error')
-  })
+  res
+    .on("error", err=>{
+      log.error(err)
+      req.writeHead(500, {'Content-Type': 'text/plain'})
+      req.end('500 Internal Server Error')
+    })
+    .on('finish', ()=>log.debug(`Finished request for ${url}`))
+    .on('404', message=>{
+      log.warn(`404 error: ${url}`)
+      res.writeHead(404, {'Content-Type': 'text/html'})
+      let msg_str = '<!DOCTYPE html><html><head><title>Not Found</title></head><body><h1>404 Not Found</h1>'
+      if(message) {
+        msg_str += `<h2>Message from the server</h2><pre>${message}</pre>`
+      }
+      res.end(msg_str + '</body></html>')
+    })
 
   req
     .on('data', chunk=>chunks.push(chunk))
     .on('end', ()=>{
       const body=Buffer.concat(chunks).toString()
-      switch(url) {
-        case '/play':
-          const stream = fs.createReadStream(config.test.input, {emitClose: true})
+      let input = config.test.input
+      if(url.searchParams.get('name')) {
+        input = url.searchParams.get('name')
+      }
+      switch(url.pathname) {
+        case '/data/play':
+          log.debug('search parameters: ', url.search)
+          let stream
+          try {
+            stream = fs.createReadStream(input, {emitClose: true})
+          } catch(err) {
+            return res.emit('404', err)
+          }
           res.writeHead(200, 'audio/mp3')
           stream.pipe(res)
+          stream.on('close', ()=>res.end())
+          break
+        case '/':
+          let play_url = new URL('/data/play', `${url.protocol}${url.host}`)
+          play_url.searchParams.append('name', input)
+          res.writeHead(200, 'text/html')
+          res.end(`<!DOCTYPE html><html><head><title>Server Test</title></head><body><audio autostart controls="controls"><source src="${play_url}"></audio></body></html>`)
           break
         default:
-          res.writeHead(200, 'text/html')
-          res.end('<!DOCTYPE html><html><head><title>Server Test</title></head><body><audio controls="controls"><source src="/play"></audio></body></html>')
+          res.emit('404')
       }
     })
 }
