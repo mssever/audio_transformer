@@ -1,16 +1,48 @@
 import events from 'events'
+import express from 'express'
 import fs from 'fs'
 import http from 'http'
 import log from 'loglevel'
+import morgan from 'morgan'
 import path from 'path'
 
 import util from './util.js'
+import apiv1 from './api/v1/apiv1.js'
 
 const config = JSON.parse(fs.readFileSync(path.join('server', 'config.json')).toString())
 log.setLevel(config.loglevel, false)
 log.debug('config: ', config)
 
-const server = http.createServer(server_callback)
+const app = express()
+app.use(express.urlencoded())
+app.use(express.json())
+app.use(morgan('common'))
+
+app.use('/api/v1', apiv1)
+
+// 404 handler
+app.use((req, res, next) => {
+  try{
+    res.status(404)
+    res.json({status: 'error', message:'404 Not Found'})
+  } catch(e) {
+    next(e)
+  }
+})
+
+app.use((err, req, res, next) => {
+      res
+        .status(err.status || 500)
+        .json({...err, status: 'error', req:{path:req.path, method: req.method}})
+})
+
+//error handler: app.use((err, req,res, next) => {// is an error handler because it takes four parameters})
+// res.json({...err})
+//then call next(error)
+//
+// Custom 404: place on a general route, then override with a specific route
+
+const server = http.createServer(app)
 server
   .on('connect', socket=>log.debug(`Client ${socket.remoteAddress}:${socket.remotePort} connected to the server at ${socket.localAddress}:${socket.localPort}.`))
   .on('connection', socket=>log.debug(`Connection established from ${socket.remoteAddress} port ${socket.remotePort} to ${socket.localAddress} port ${socket.localPort}`))
@@ -18,7 +50,7 @@ server
   .on('upgrade', (req, socket, head) => log.debug(`Upgrade requested. Header: ${head.toString()}`))
 server.listen(config.port, () => log.info(`Server listening on port ${config.port}`))
 
-const emitter = new events.EventEmitter()
+// const emitter = new events.EventEmitter()
 
 process.on('SIGTERM', ()=>util.kill_server(server))
 process.on('SIGINT', ()=>util.kill_server(server))
