@@ -1,10 +1,12 @@
-import events from 'events'
+// import events from 'events'
 import express from 'express'
 import fs from 'fs'
 import http from 'http'
 import log from 'loglevel'
 import morgan from 'morgan'
 import path from 'path'
+import { Server as SocketServer } from 'socket.io'
+// import WebSocket from 'isomorphic-ws'
 
 import util from './util.js'
 import apiv1 from './api/v1/apiv1.js'
@@ -17,6 +19,15 @@ const app = express()
 app.use(express.urlencoded())
 app.use(express.json())
 app.use(morgan('common'))
+
+app.use('/', (req, res, next) => {
+  try{
+    res.header({'Feature-Policy': 'microphone'})
+    next()
+  } catch (e) {
+    next(e)
+  }
+})
 
 app.use('/api/v1', apiv1)
 
@@ -43,6 +54,12 @@ app.use((err, req, res, next) => {
 // Custom 404: place on a general route, then override with a specific route
 
 const server = http.createServer(app)
+
+const io = new SocketServer(server);
+io.on('connection', (socket) => {
+  console.log('a user connected')
+})
+
 server
   .on('connect', socket=>log.debug(`Client ${socket.remoteAddress}:${socket.remotePort} connected to the server at ${socket.localAddress}:${socket.localPort}.`))
   .on('connection', socket=>log.debug(`Connection established from ${socket.remoteAddress} port ${socket.remotePort} to ${socket.localAddress} port ${socket.localPort}`))
@@ -55,6 +72,15 @@ server.listen(config.port, () => log.info(`Server listening on port ${config.por
 process.on('SIGTERM', ()=>util.kill_server(server))
 process.on('SIGINT', ()=>util.kill_server(server))
 process.on('SIGHUP', ()=>util.kill_server(server))
+
+
+/*
+const ws = new WebSocket.WebSocketServer({server})
+ws.on('open', ()=>log.debug('Connection opened'))
+ws.on('close', ()=>log.debug('connection closed'))
+ws.on('message', data=>{
+  ws.send(data)
+})
 
 function server_callback(req, res) {
   let {url, method} = req
@@ -114,3 +140,4 @@ function server_callback(req, res) {
       }
     })
 }
+*/

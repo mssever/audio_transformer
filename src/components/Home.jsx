@@ -1,4 +1,5 @@
 import { Component } from "react";
+import { Link } from 'react-router-dom'
 import Navbar from "./Navbar";
 import Player from "./Player"
 
@@ -13,6 +14,7 @@ export default class Home extends Component {
         <Navbar />
         <h1>Audio Transformer</h1>
         <Player src={filename} title={title} server={server} />
+        <Link to="/record/test_id">Record</Link>
       </main>
     )
   }
