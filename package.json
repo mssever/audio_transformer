@@ -1,0 +1,29 @@
+{
+  "name": "audio-transformer",
+  "version": "0.1.0",
+  "description": "",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mssever/audio_transformer.git"
+  },
+  "author": "Scott Severance",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mssever/audio_transformer/issues"
+  },
+  "homepage": "https://github.com/mssever/audio_transformer#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "npm-run-all": "^4.1.5"
+  },
+  "dependencies": {
+    "webpack": "^5.47.1",
+    "webpack-cli": "^4.7.2",
+    "webpack-node-externals": "^3.0.0"
+  }
+}
