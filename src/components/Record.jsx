@@ -1,6 +1,7 @@
 import SocketScript from "./SocketScript";
 import { Recorder } from '../lib/record'
 import React from "react";
+import Navbar from "./Navbar";
 
 export default class Record extends React.Component {
   constructor({id}) {
@@ -32,6 +33,7 @@ export default class Record extends React.Component {
   render() {
     return (
       <React.Fragment>
+        <Navbar/>
         <h2>Record</h2>
         <p>Turn on the switch to start recording. Turn it off to stop.</p>
         <div className="form-check form-switch">
