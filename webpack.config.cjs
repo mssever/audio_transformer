@@ -1,5 +1,6 @@
-import path from 'path'
-import nodeExternals from 'webpack-node-externals'
+const path = require('path')
+const { cli } = require('webpack')
+const nodeExternals = require('webpack-node-externals')
 
 const serverConfig = {
   mode: process.env.NODE_ENV || 'production',
@@ -62,7 +63,4 @@ const clientConfig = {
   }
 }
 
-export {
-  serverConfig,
-  clientConfig
-}
+module.exports = [serverConfig, clientConfig]
