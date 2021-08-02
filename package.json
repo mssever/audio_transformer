@@ -6,7 +6,7 @@
   "scripts": {
     "watch:build": "npx webpack -w",
     "watch:server": "nodemon dist/server.js",
-    "dev": "NODE_ENV=development npm-run-all --parallel watch:*",
+    "dev": "DEBUG=socket* NODE_ENV=development npm-run-all --parallel watch:*",
     "start": "NODE_ENV=production node dist/server.js"
   },
   "repository": {

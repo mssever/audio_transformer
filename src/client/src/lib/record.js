@@ -6,9 +6,9 @@ import config from '../lib/config.js'
 
 export class Recorder {
   constructor(id) {
+    this.id = id
+    this.seq = 0;
     (async () => {
-      this.id = id
-      this.seq = 0
       try {
         this.stream = await navigator.mediaDevices.getUserMedia({video: false, audio: true})
       } catch(err) {
@@ -34,14 +34,15 @@ export class Recorder {
       type: 'audio',
       mimeType: 'audio/webm',
       recorderType: StereoAudioRecorder,
-      timeSlice: 3000,
+      timeSlice: 30,
       ondataavailable: async blob => {
         let seq = this.seq++
         let data = await blob.arrayBuffer()
         data = Buffer.from(data)
         console.log({seq, data})
         if(this.socket.connected) {
-          this.socket.emit('audio'+this.id, {seq, data})
+          // this.socket.emit('audio'+this.id, {seq, data})
+          this.socket.emit('audio'+this.id, {seq})
         }
       },
       sampleRate: 22050,

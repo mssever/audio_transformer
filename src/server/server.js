@@ -38,9 +38,9 @@ app.use('/api', apiv1)
 app.use('/test', (req, res, next) => {
   res.json({ message: 'success' })
 })
-app.use('/', express.static(path.join(process.cwd(), 'build')))
+app.use('/', express.static(path.join(process.cwd(), 'public')))
 app.use((req, res, next) => {
-  res.sendFile(path.join(process.cwd(), 'build', 'index.html'))
+  res.sendFile(path.join(process.cwd(), 'public', 'index.html'))
 })
 // 404 handler
 app.use((req, res, next) => {
@@ -78,7 +78,8 @@ export const io = new SocketServer(server, {
 })
 io.on('connection', (socket) => {
   console.log('a user connected')
-  socket.emit('test', { test: true, message: 'message' })
+  socket.emit('test', { test: true, from: 'socket', message: 'message' })
+  io.emit('test', {test:true, from: 'io', message: 'message'})
   log.debug(socket)
 })
   .on('start recording', ({ id }) => (recordings[id] = true))

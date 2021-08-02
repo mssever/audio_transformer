@@ -1,8 +1,12 @@
 const { resolve } = require("path");
 const nodeExternals = require("webpack-node-externals");
 
+if (!process.env.NODE_ENV) {
+  throw new Error('NODE_ENV must be either "development" or "production"!')
+}
+
 const serverConfig = {
-  mode: process.env.NODE_ENV || "development",
+  mode: process.env.NODE_ENV,
   entry: "./src/server/server.js",
   module: {
     rules: [
