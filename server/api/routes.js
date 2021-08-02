@@ -2,7 +2,7 @@
 import express from 'express'
 import morgan from 'morgan'
 
-import { io, recordings } from '../../server.js'
+import { io, recordings } from '../server.js'
 
 const router = express.Router();
 // const emitter = new events.EventEmitter()

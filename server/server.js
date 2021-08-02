@@ -9,7 +9,7 @@ import path from 'path'
 import { Server as SocketServer } from 'socket.io'
 
 import util from './util.js'
-import apiv1 from './api/v1/apiv1.js'
+import apiv1 from './api/routes.js'
 
 const config = JSON.parse(fs.readFileSync(path.join('server', 'config.json')).toString())
 log.setLevel(config.loglevel, false)
