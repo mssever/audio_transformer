@@ -20,13 +20,6 @@ package-lock.json
 /dist
 /public/js
 
-#######
-# temp for separation branch
-/dist
-public/js/
-src/client
-#######
-
 # misc
 .DS_Store
 .env.local
