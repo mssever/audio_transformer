@@ -2,7 +2,7 @@
   "name": "audio-transformer",
   "version": "0.1.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/server/index.js",
   "type": "module",
   "scripts": {
     "watch:build": "npx webpack -w",
@@ -21,6 +21,16 @@
   },
   "homepage": "https://github.com/mssever/audio_transformer#readme",
   "devDependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.14.5",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-transform-react-constant-elements": "^7.14.5",
+    "@babel/plugin-transform-react-inline-elements": "^7.14.5",
+    "@babel/plugin-transform-runtime": "^7.14.5",
+    "@babel/preset-env": "^7.14.9",
+    "@babel/preset-react": "^7.14.5",
+    "@babel/runtime": "^7.14.8",
+    "babel-loader": "^8.2.2",
+    "babel-plugin-transform-react-remove-prop-types": "^0.4.24",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.12",
     "npm-run-all": "^4.1.5",
@@ -43,6 +53,7 @@
     "style-loader": "^3.2.1",
     "webpack": "^5.47.1",
     "webpack-cli": "^4.7.2",
-    "webpack-node-externals": "^3.0.0"
+    "webpack-node-externals": "^3.0.0",
+    "webrtc-adapter": "^8.1.0"
   }
 }

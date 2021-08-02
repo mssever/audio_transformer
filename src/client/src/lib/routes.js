@@ -1,6 +1,6 @@
-import Home from "../components/Home"
-import Player from "../components/Player"
-import Record from "../components/Record"
+import Home from "../components/Home.jsx"
+import Player from "../components/Player.jsx"
+import Record from "../components/Record.jsx"
 
 
 class Route {

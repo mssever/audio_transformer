@@ -36,14 +36,14 @@ const clientConfig = {
   devtool: 'inline-source-map',
   module: {
     rules: [
-      // {
-      //   test: /\.tsx?$/,
-      //   loader: 'ts-loader',
-      //   exclude: 'node-modules',
-      //   options: {
-      //     configFile: 'tsconfig.client.json'
-      //   }
-      // },
+      {
+        test: /\.jsx?$/,
+        loader: 'babel-loader',
+        exclude: /node-modules/,
+        // options: {
+        //   configFile: 'tsconfig.client.json'
+        // }
+      },
       {
         test: /\.scss$/,
         use: [
