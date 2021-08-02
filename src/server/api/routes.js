@@ -4,10 +4,10 @@ import morgan from 'morgan'
 
 import { io, recordings } from '../server.js'
 
-const router = express.Router();
+const router = express.Router()
 // const emitter = new events.EventEmitter()
 
-router.use(express.urlencoded({extended: true}))
+router.use(express.urlencoded({ extended: true }))
 router.use(express.json())
 router.use(morgan('common'))
 
@@ -27,19 +27,22 @@ console.log('hi from apiv1.js')
 router.get('/play/test', (req, res, next) => {
   try {
     let id = req.query.id
-    res.json({id, available: !!recordings[id]})
-  } catch(e) {
+    res.json({ id, available: !!recordings[id] })
+  } catch (e) {
     next(e)
   }
 })
 
-router.get('/play', (req, res, next)=>{
+router.get('/play', (req, res, next) => {
   console.log('hi from play')
   try {
     let id = req.query.id
     if(!recordings[id]) {
       res.status(409)
-      res.json({message: 'This data source isn\'t currently sending data. Please check the ID or try again later.'})
+      res.json({
+        message:
+          "This data source isn't currently sending data. Please check the ID or try again later.",
+      })
       next()
     }
     // let stream

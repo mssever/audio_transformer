@@ -1,7 +1,9 @@
 import dotenv from 'dotenv'
 
 if(!dotenv.config()) {
-  console.error('env variables not loaded')
+  throw new Error('env variables not loaded')
 }
 
-let port = process.env.PORT
+export default {
+  port: parseInt(process.env.PORT),
+}
