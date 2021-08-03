@@ -7,7 +7,7 @@ if (!process.env.NODE_ENV) {
 
 const serverConfig = {
   mode: process.env.NODE_ENV,
-  entry: "./src/server/server.js",
+  entry: "./src/server/index.js",
   module: {
     rules: [
       {
@@ -21,7 +21,7 @@ const serverConfig = {
     extensions: [".jsx", ".js"],
   },
   output: {
-    filename: "server.js",
+    filename: "index.js",
     path: resolve(__dirname, "dist"),
   },
   target: "node",

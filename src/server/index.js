@@ -5,7 +5,7 @@ import path from 'path'
 
 import api from './api/routes'
 import config from './config'
-import { app, server, io } from './servers'
+import { app, httpServer, io } from './servers'
 import { recordings } from './shared_data'
 import util from './util'
 
@@ -87,13 +87,13 @@ io.on('connection', (socket) => {
  * Start the servers
  * 
  ****************************************************************************/
-server
-  .on('connect', socket=>log.debug(`Client ${socket.remoteAddress}:${socket.remotePort} connected to the server at ${socket.localAddress}:${socket.localPort}.`))
+httpServer
+  .on('connect', socket=>log.debug(`Client ${socket.remoteAddress}:${socket.remotePort} connected to the httpServer at ${socket.localAddress}:${socket.localPort}.`))
   .on('connection', socket=>log.debug(`Connection established from ${socket.remoteAddress} port ${socket.remotePort} to ${socket.localAddress} port ${socket.localPort}`))
   .on('request', (req, res) => log.debug(`Request received. URL: ${req.url}. Method: ${req.method}`))
   .on('upgrade', (req, socket, head) => log.debug(`Upgrade requested. Header: ${head}\nSocket:${socket}`))
-server.listen(config.port, () => log.info(`Server listening on port ${config.port}`))
+httpServer.listen(config.port, () => log.info(`Server listening on port ${config.port}`))
 
-process.on('SIGTERM', () => util.kill_server(server))
-process.on('SIGINT', () => util.kill_server(server))
-process.on('SIGHUP', () => util.kill_server(server))
+process.on('SIGTERM', () => util.kill_server(httpServer))
+process.on('SIGINT', () => util.kill_server(httpServer))
+process.on('SIGHUP', () => util.kill_server(httpServer))
