@@ -6,11 +6,9 @@ import Navbar from "./Navbar";
 export default class Record extends React.Component {
   constructor(props) {
     super(props)
-    console.log({props})
-    this.id = props.id
-    this.recorder = new Recorder(props.id)
+    this.id = props.match.params.id
+    this.recorder = new Recorder(this.id)
     this.recordingInProgress = false
-    console.log({id: this.id, recorder: this.recorder})
 
     this.handleRecordSwitch = this.handleRecordSwitch.bind(this)
   }

@@ -12,9 +12,12 @@ export default class App extends Component {
             <Switch>
                 {routes.map(route => {
                     return (
-                        <Route key={route.path} exact path={route.path}>
-                            <route.func />
-                        </Route>
+                        <Route
+                            key={route.path}
+                            exact
+                            path={route.path}
+                            render={props => <route.func {...props}/>}
+                        />
                     )
                 })}
             </Switch>

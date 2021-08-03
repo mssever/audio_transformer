@@ -1,5 +1,5 @@
 import routes from '../lib/routes'
-import {Link} from 'react-router-dom'
+import {NavLink} from 'react-router-dom'
 import React from 'react'
 
 export default function Navbar(props) {
@@ -16,7 +16,7 @@ export default function Navbar(props) {
               if(!route.skipNav) {
                 return (
                   <li key={idx} className="nav-item">
-                    <Link className="nav-link" to={route.path}>{route.name}</Link>
+                    <NavLink className="nav-link" to={route.path}>{route.name}</NavLink>
                   </li>
                 )
               } else return null

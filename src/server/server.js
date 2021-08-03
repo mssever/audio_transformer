@@ -58,6 +58,7 @@ app.use((err, req, res, next) => {
     .json({
       err,
       status: 'error',
+      code: err.status || 500,
       req: { path: req.path, method: req.method },
     })
 })

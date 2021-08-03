@@ -11,8 +11,6 @@ router.use(express.urlencoded({ extended: true }))
 router.use(express.json())
 router.use(morgan('common'))
 
-//TODO: In the incoming handler, Read stream a few bytes at a time and emit an event containing those bytes. In the play handler, listen for the event and send the data. When the close event is emitted, end the response.
-
 // router.post('play', (req, res, next) =>{
 //   let id = req.query.id
 // //webrtc, socket.io
@@ -23,7 +21,6 @@ router.use(morgan('common'))
 //   emitter.emit('close'+id)
 //   res.json({status: 'success', message:'Stream finished'})
 // })
-console.log('hi from apiv1.js')
 router.get('/play/test', (req, res, next) => {
   try {
     let id = req.query.id
