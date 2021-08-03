@@ -1,3 +1,4 @@
+import React from 'react'
 import SocketScript from './SocketScript'
 
 export default function Player({src, title, server}) {

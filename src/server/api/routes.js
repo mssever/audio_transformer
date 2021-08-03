@@ -1,8 +1,8 @@
-// import events from 'events'
 import express from 'express'
 import morgan from 'morgan'
 
-import { io, recordings } from '../server.js'
+import { io } from '../servers.js'
+import { recordings } from '../shared_data.js'
 
 const router = express.Router()
 // const emitter = new events.EventEmitter()
@@ -31,7 +31,6 @@ router.get('/play/test', (req, res, next) => {
 })
 
 router.get('/play', (req, res, next) => {
-  console.log('hi from play')
   try {
     let id = req.query.id
     if(!recordings[id]) {
@@ -51,8 +50,11 @@ router.get('/play', (req, res, next) => {
     res.writeHead(200, 'audio/mp3')
     // io.on('audio'+id, data=>res.write(data))
     // io.on('close'+id, ()=>res.end())
-    io.on('audio'+id, data=>console.log({id, event:'audio', seq: data.seq}))
-    io.on('close'+id, data=>console.log({id, event:'close'}))
+    io.on('audio'+id, data=>res.json({id, event:'audio', seq: data.seq}))
+    io.on('close'+id, data=>{
+      res.json({id, event:'close'})
+      res.end()
+    })
     // TODO: Do I need to remove the listener to avoid memory leaks?
 
     // stream.pipe(res)
