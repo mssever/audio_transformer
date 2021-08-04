@@ -17,6 +17,7 @@ router
   .get('/play', (req, res, next) => {
     try {
       let id = req.query.id
+      let mimeType
       console.debug({id, recordings})
       if(!recordings[id]) {
         res
@@ -27,18 +28,18 @@ router
           })
         return
       }
-      res
-        .writeHead(200, {'Content-Type': 'application/json; charset=utf-8'})
       emitter
-        .on(`audio ${id}`, data=>{
-          res.write(JSON.stringify({id, event:'audio', data}))
-          console.log({type:'audio event', data})
+        .on(`audio ${id}`, data => {
+          if(!mimeType) {
+            mimeType = data.mimeType
+            res.writeHead(200, {'Content-Type': mimeType})
+          }
+          res.write(data.data)
+          console.debug({event: `audio ${id}`, seq: data.seq, mimeType, length: data.data.length})
         })
         .on(`close ${id}`, () => {
-          console.log({type:'audio close', id})
-          res
-            // .json({id, event:'close'})
-            .end()
+          console.debug({type:'audio close', id})
+          res.end()
         })
     } catch (e) {
       next(e)

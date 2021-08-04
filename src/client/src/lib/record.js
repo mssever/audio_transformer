@@ -8,16 +8,17 @@ export class Recorder {
   constructor(id, record_switch) {
     this.id = id
     this.record_switch = record_switch
-    this.seq = 0;
+    this.seq = 0
+    this.mimeType = 'audio/webm';
     (async () => {
       try {
         this.stream = await navigator.mediaDevices.getUserMedia({video: false, audio: true})
       } catch(err) {
         console.error(err)
       }
-      console.log('stream', this.stream)
+      // console.log('stream', this.stream)
       this.setRecorder()
-      console.log('recorder', this.recorder)
+      // console.log('recorder', this.recorder)
     })()
 
     this.setRecorder = this.setRecorder.bind(this)
@@ -33,18 +34,23 @@ export class Recorder {
   setRecorder() {
     this.recorder = new RecordRTC(this.stream, {
       type: 'audio',
-      mimeType: 'audio/webm',
+      mimeType: this.mimeType,
       recorderType: StereoAudioRecorder,
-      timeSlice: 3000,
+      timeSlice: 1000,
       ondataavailable: async blob => {
         let seq = this.seq++
         let data = await blob.arrayBuffer()
         // data = Buffer.from(data)
-        console.log({seq, data})
+        console.debug({type: 'data packet', seq})
         if(this.socket.connected) {
           // this.socket.emit('audio'+this.id, {seq, data})
           try {
-            this.socket.emit('audio', {id:this.id,seq})
+            this.socket.emit('audio', {
+              id: this.id,
+              seq,
+              mimeType: this.mimeType,
+              data
+            })
           } catch (e) {
             console.error('caught an error', e)
             this.stopRecording()
@@ -74,7 +80,7 @@ export class Recorder {
         console.log({type:'connection error', err})
         this.record_switch.click() // stop recording when the server crashes
       })
-    console.log({socket: this.socket})
+    // console.log({socket: this.socket})
     this.recorder.startRecording()
     this.socket.emit('start recording', {id: this.id})
     console.log('recording started')

@@ -85,7 +85,7 @@ io
         emitter.emit(`close ${id}`)
       })
       .on('audio', data => {
-        console.log({type: 'first audio event', audio: `audio ${data.id}`, data})
+        // console.log({type: 'first audio event', audio: `audio ${data.id}`, data})
         emitter.emit(`audio ${data.id}`, data)
       })
       .on('close', ({id}) => emitter.emit(`close ${id}`))
