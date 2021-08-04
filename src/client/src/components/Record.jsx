@@ -1,4 +1,3 @@
-import SocketScript from "./SocketScript";
 import { Recorder } from '../lib/record'
 import React from "react";
 import Navbar from "./Navbar";
@@ -7,7 +6,6 @@ export default class Record extends React.Component {
   constructor(props) {
     super(props)
     this.id = props.match.params.id
-    this.recorder = new Recorder(this.id)
     this.recordingInProgress = false
 
     this.handleRecordSwitch = this.handleRecordSwitch.bind(this)
@@ -26,7 +24,9 @@ export default class Record extends React.Component {
   }
 
   componentDidMount() {
-    document.querySelector('#recording-switch').addEventListener('change', this.handleRecordSwitch)
+    let box = document.querySelector('#recording-switch')
+    this.recorder = new Recorder(this.id, box)
+    box.addEventListener('change', this.handleRecordSwitch)
     document.querySelector('#recording-switch-label').addEventListener('change', this.handleRecordSwitch)
   }
 
@@ -37,7 +37,6 @@ export default class Record extends React.Component {
         <h2>Record</h2>
         <p>Turn on the switch to start recording. Turn it off to stop.</p>
         <div className="form-check form-switch">
-          <SocketScript/>
           {/* <button id="btn-record" className="btn btn-primary me-3" onClick={() => {
             this.recorder.startRecording()
             document.querySelector('#btn-stop').disabled = false

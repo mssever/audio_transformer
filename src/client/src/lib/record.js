@@ -5,8 +5,9 @@ import adapter from 'webrtc-adapter' // unused because merely importing this lib
 import config from '../lib/config.js'
 
 export class Recorder {
-  constructor(id) {
+  constructor(id, record_switch) {
     this.id = id
+    this.record_switch = record_switch
     this.seq = 0;
     (async () => {
       try {
@@ -42,7 +43,12 @@ export class Recorder {
         console.log({seq, data})
         if(this.socket.connected) {
           // this.socket.emit('audio'+this.id, {seq, data})
-          this.socket.emit('audio', {id:this.id,seq})
+          try {
+            this.socket.emit('audio', {id:this.id,seq})
+          } catch (e) {
+            console.error('caught an error', e)
+            this.stopRecording()
+          }
         }
       },
       sampleRate: 22050,
@@ -56,12 +62,18 @@ export class Recorder {
   startRecording() {
     this.socket = io(config.socket.protocol + config.socket.host)
     // debugger
-    this.socket.on('connection', (socket) => {
-      console.log('socket connected - client', socket)
-      socket.on('ping', ()=>console.log('ping'))
-      socket.on('test', (msg)=>console.log(msg))
-      this.heartbeat = setInterval(()=>socket.emit('ping'), 100)
-    })
+    this.socket
+      .on('connection', (socket) => {
+        console.log('socket connected - client', socket)
+        socket.on('ping', ()=>console.log('ping'))
+        socket.on('test', (msg)=>console.log(msg))
+        this.heartbeat = setInterval(()=>socket.emit('ping'), 100)
+      })
+      .on('error', err => console.error({type:'socket error', err}))
+      .on('connect_error', err => {
+        console.log({type:'connection error', err})
+        this.record_switch.click() // stop recording when the server crashes
+      })
     console.log({socket: this.socket})
     this.recorder.startRecording()
     this.socket.emit('start recording', {id: this.id})
@@ -76,6 +88,7 @@ export class Recorder {
     this.socket.close()
     this.socket = undefined
     console.log('recording stopped')
+    // if(this.record_switch.checked) this.record_switch.checked = false
     this.setRecorder()
   }
 }
