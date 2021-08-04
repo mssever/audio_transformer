@@ -27,10 +27,11 @@ router
           })
         return
       }
-      res.status(200)
+      res
+        .writeHead(200, {'Content-Type': 'application/json; charset=utf-8'})
       emitter
         .on(`audio ${id}`, data=>{
-          res.json({id, event:'audio', data})
+          res.write(JSON.stringify({id, event:'audio', data}))
           console.log({type:'audio event', data})
         })
         .on(`close ${id}`, () => {

@@ -82,6 +82,7 @@ io
       .on('stop recording', ({ id }) => {
         recordings[id] = false
         console.log({type: 'stop', id})
+        emitter.emit(`close ${id}`)
       })
       .on('audio', data => {
         console.log({type: 'first audio event', audio: `audio ${data.id}`, data})
