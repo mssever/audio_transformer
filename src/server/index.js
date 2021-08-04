@@ -5,7 +5,7 @@ import path from 'path'
 
 import api from './api/routes'
 import config from './config'
-import { app, httpServer, io } from './servers'
+import { app, httpServer, io, emitter } from './servers'
 import { recordings } from './shared_data'
 import util from './util'
 
@@ -71,16 +71,26 @@ app
  * Socket.io (WebSockets)
  * 
  ****************************************************************************/
-io.on('connection', (socket) => {
-  console.log('a user connected')
-  socket.emit('test', { test: true, from: 'socket', message: 'message' })
-  io.emit('test', {test:true, from: 'io', message: 'message'})
-  log.debug(socket)
-})
-  .on('start recording', ({ id }) => (recordings[id] = true))
-  .on('stop recording', ({ id }) => (recordings[id] = false))
-  .on('ping', () => console.log('ping'))
+io
+  .on('connection', socket => {
+    console.log(`Socket.io connection from ${socket.client.conn.remoteAddress}`)
+    socket
+      .on('start recording', ({ id }) => {
+        recordings[id] = true
+        console.log({type: 'start', id})
+      })
+      .on('stop recording', ({ id }) => {
+        recordings[id] = false
+        console.log({type: 'stop', id})
+      })
+      .on('audio', data => {
+        console.log({type: 'first audio event', audio: `audio ${data.id}`, data})
+        emitter.emit(`audio ${data.id}`, data)
+      })
+      .on('close', ({id}) => emitter.emit(`close ${id}`))
+  })
 
+// emitter.on('audio test_id', data => console.log({type: 'second audio event', audio: `audio ${data.id}`, data}))
 
 /*****************************************************************************
  * 
@@ -90,10 +100,11 @@ io.on('connection', (socket) => {
 httpServer
   .on('connect', socket=>log.debug(`Client ${socket.remoteAddress}:${socket.remotePort} connected to the httpServer at ${socket.localAddress}:${socket.localPort}.`))
   .on('connection', socket=>log.debug(`Connection established from ${socket.remoteAddress} port ${socket.remotePort} to ${socket.localAddress} port ${socket.localPort}`))
-  .on('request', (req, res) => log.debug(`Request received. URL: ${req.url}. Method: ${req.method}`))
-  .on('upgrade', (req, socket, head) => log.debug(`Upgrade requested. Header: ${head}\nSocket:${socket}`))
-httpServer.listen(config.port, () => log.info(`Server listening on port ${config.port}`))
+  .on('request', req => log.debug(`Request received. URL: ${req.url}. Method: ${req.method}`))
+  .on('upgrade', (_req, socket, head) => log.debug(`Upgrade requested. Header: ${head}\nSocket:${socket}`))
+  .listen(config.port, () => log.info(`Server listening on port ${config.port}`))
 
-process.on('SIGTERM', () => util.kill_server(httpServer))
-process.on('SIGINT', () => util.kill_server(httpServer))
-process.on('SIGHUP', () => util.kill_server(httpServer))
+process
+  .on('SIGTERM', () => util.kill_server(httpServer))
+  .on('SIGINT', () => util.kill_server(httpServer))
+  .on('SIGHUP', () => util.kill_server(httpServer))

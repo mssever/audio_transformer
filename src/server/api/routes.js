@@ -1,7 +1,8 @@
 import express from 'express'
+// import log from 'loglevel'
 import morgan from 'morgan'
 
-import { io } from '../servers.js'
+import { emitter } from '../servers.js'
 import { recordings } from '../shared_data.js'
 
 const router = express.Router()
@@ -11,16 +12,6 @@ router.use(express.urlencoded({ extended: true }))
 router.use(express.json())
 router.use(morgan('common'))
 
-// router.post('play', (req, res, next) =>{
-//   let id = req.query.id
-// //webrtc, socket.io
-//   let data
-//   while(data = __readBytesFromReq__()) {
-//     emitter.emit('data'+id, Buffer.from(data))
-//   }
-//   emitter.emit('close'+id)
-//   res.json({status: 'success', message:'Stream finished'})
-// })
 router.get('/play/test', (req, res, next) => {
   try {
     let id = req.query.id
@@ -33,32 +24,26 @@ router.get('/play/test', (req, res, next) => {
 router.get('/play', (req, res, next) => {
   try {
     let id = req.query.id
+    console.debug({id, recordings})
     if(!recordings[id]) {
       res.status(409)
       res.json({
         message:
           "This data source isn't currently sending data. Please check the ID or try again later.",
       })
-      next()
+      return
     }
-    // let stream
-    // try {
-    //   stream = fs.createReadStream(id, {emitClose: true})
-    // } catch(err) {
-    //   next(err)
-    // }
-    res.writeHead(200, 'audio/mp3')
-    // io.on('audio'+id, data=>res.write(data))
-    // io.on('close'+id, ()=>res.end())
-    io.on('audio'+id, data=>res.json({id, event:'audio', seq: data.seq}))
-    io.on('close'+id, data=>{
-      res.json({id, event:'close'})
-      res.end()
-    })
-    // TODO: Do I need to remove the listener to avoid memory leaks?
-
-    // stream.pipe(res)
-    // stream.on('close', ()=>res.end())
+    res.status(200)
+    emitter
+      .on(`audio ${id}`, data=>{
+        res.json({id, event:'audio', data})
+        console.log({type:'audio event', data})
+      })
+      .on(`close ${id}`, () => {
+        res.json({id, event:'close'})
+        console.log({type:'audio close', id})
+        res.end()
+      })
   } catch (e) {
     next(e)
   }

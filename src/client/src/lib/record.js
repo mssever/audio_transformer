@@ -42,7 +42,7 @@ export class Recorder {
         console.log({seq, data})
         if(this.socket.connected) {
           // this.socket.emit('audio'+this.id, {seq, data})
-          this.socket.emit('audio'+this.id, {seq})
+          this.socket.emit('audio', {id:this.id,seq})
         }
       },
       sampleRate: 22050,

@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events'
 import express from 'express'
 import http from 'http'
 import { Server as SocketServer } from 'socket.io'
@@ -10,7 +11,9 @@ export const httpServer = http.createServer(app)
 
 export const io = new SocketServer(httpServer, {
   cors: {
-    origin: `http://192.168.1.100:${config.port}`,
-    methods: ['GET', 'POST'],
+    origin: config.corsOrigin,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
   },
 })
+
+export const emitter = new EventEmitter()
