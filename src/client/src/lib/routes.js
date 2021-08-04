@@ -16,7 +16,7 @@ const routes = [
   new Route(Home, '/', 'Home'),
   new Route(()=>'Listen', '/listen', 'Listen'),
   new Route(Record, '/record/:id', 'Record', true),
-  new Route(Player, '/player/:id', 'Player', true)
+  new Route(Player, '/play/:id', 'Player', true)
 ]
 
 export default routes

@@ -28,8 +28,10 @@
     "loglevel": "^1.7.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-icons": "^4.2.0",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
+    "reactstrap": "^8.9.0",
     "recordrtc": "^5.6.2",
     "sass": "^1.32.13",
     "sass-loader": "^11.1.1",
@@ -42,6 +44,7 @@
     "webrtc-adapter": "^8.1.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.14.8",
     "@babel/preset-react": "^7.13.13",
     "morgan": "^1.10.0",
     "nodemon": "^2.0.7",
