@@ -8,6 +8,7 @@ import config from './config'
 import { app, httpServer, io, emitter } from './servers'
 import { recordings } from './shared_data'
 import util from './util'
+import { dirname } from './api/files' // doesn't need to be used; importing it is sufficient
 
 
 /*****************************************************************************
@@ -16,6 +17,7 @@ import util from './util'
  * 
  ****************************************************************************/
 log.debug(config.port)
+setTimeout(()=>console.debug(`saving files to directory ${dirname}`), 250)
 
 
 /*****************************************************************************
@@ -87,8 +89,12 @@ io
       .on('audio', data => {
         // console.log({type: 'first audio event', audio: `audio ${data.id}`, data})
         emitter.emit(`audio ${data.id}`, data)
+        emitter.emit('write file', {id: data.id, data: data.data})
       })
-      .on('close', ({id}) => emitter.emit(`close ${id}`))
+      .on('close', ({id}) => {
+        emitter.emit(`close ${id}`)
+        emitter.emit('close file', id)
+      })
   })
 
 // emitter.on('audio test_id', data => console.log({type: 'second audio event', audio: `audio ${data.id}`, data}))
@@ -106,6 +112,7 @@ httpServer
   .listen(config.port, () => log.info(`Server listening on port ${config.port}`))
 
 process
-  .on('SIGTERM', () => util.kill_server(httpServer))
-  .on('SIGINT', () => util.kill_server(httpServer))
-  .on('SIGHUP', () => util.kill_server(httpServer))
+  .once('SIGTERM', () => util.kill_server(httpServer))
+  .once('SIGINT', () => util.kill_server(httpServer))
+  .once('SIGHUP', () => util.kill_server(httpServer))
+  .once('SIGUSR2', () => util.kill_server(httpServer)) // sent by nodemon when restarting
