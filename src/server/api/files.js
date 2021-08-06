@@ -47,30 +47,25 @@ emitter
     fileHandles[id] = undefined
   })
   .on('start fifo', ({id, data, seq, mimeType}) => {
-    // console.debug({event: 'start fifo', id, seq, mimeType})
+    let wavData = data
     let fifo = getFifo()
-    // console.debug('start fifo: getFifo() returned')
-    // console.debug({where: 'start fifo', fifo, wav: fifo.wav, raw: fifo.raw})
-    fs.writeFile(fifo.wav, data, err => console.error({source: 'start fifo (write)', id, seq, err}))
-    console.debug('start fifo: write file called')
+    console.debug({location: 'pre-write', wavData})
+
+    fs.writeFile(fifo.wav, wavData, err => console.error({source: 'start fifo (write)', id, seq, err}))
+
     spawn('sox', [fifo.wav, fifo.raw])
-    console.debug('start fifo: sox spawned')
-    fs.readFile(fifo.raw, (err, data) => {
-      console.debug('start fifo read file callback entered. id: ' + id)
+
+    fs.readFile(fifo.raw, (err, rawData) => {
       if(err) {
         console.error({source: 'start fifo (read)', id, seq, err})
       } else {
-        console.debug('start fifo: will emit audio ' + id)
         emitter
-          .emit(`audio ${id}`, {data, id, seq, mimeType})
-        console.debug(`start fifo: emitted audio ${id}`)
+          .emit(`audio ${id}`, {data: {raw: rawData, wav: wavData}, id, seq, mimeType})
       }
       setTimeout(() => {
         returnFifo(fifo)
-        console.debug('start fifo: returnFifo called')
       }, 4000)
     })
-    console.debug('start fifo: read file called')
   });
 
 (async () => {
