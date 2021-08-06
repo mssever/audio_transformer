@@ -40,7 +40,10 @@ router
 
           if(!mimeType) {
             mimeType = data.mimeType
-            res.writeHead(200, {'Content-Type': mimeType})
+            res.writeHead(200, {
+              'Content-Type': mimeType,
+              'Cache-Control': 'no-store, max-age=0'
+            })
           }
 
 
