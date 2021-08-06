@@ -43,7 +43,6 @@ class Fifo {
   }
 
   _createFifo(extension) { // not to be called directly
-    // console.debug('Fifo._createFifo called')
     try {
       fs.mkdirSync(this.dirname)
     } catch (err) {
@@ -53,11 +52,8 @@ class Fifo {
       }
     }
     let filename = path.join(this.dirname, `${this.id}.${extension}`)
-    // console.debug('Fifo._createFifo: filename = ' + filename)
     mkfifo(filename, 0o600, err => {if (err) throw err})
-    // console.debug('Fifo._createFifo: mkfifo returned')
     this[`${extension}`] = filename
-    // console.debug('created fifo ' + filename)
   }
 
   destroy() {

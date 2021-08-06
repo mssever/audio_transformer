@@ -34,21 +34,42 @@ router
       }
       emitter
         .on(`audio ${id}`, data => {
+          if(!recordings[id]) recordings[id] = true // restore recordings if broadcaster connection is reset
           let seq = data.seq
           console.debug({event: `audio ${id}`, data})
+
           if(!mimeType) {
             mimeType = data.mimeType
             res.writeHead(200, {'Content-Type': mimeType})
           }
+
+
           if(alreadySentFirst) {
             res.write(data.data.raw)
             emitter.emit('write file', {id, data: data.data.raw, seq})
           } else {
             alreadySentFirst = true
-            res.write(data.data.wav)
-            emitter.emit('write file', {id, data: data.data.wav, seq})
+            
+            // For some reason, we have to convert *back* into WAV instead of using the WAV file received.
+
+            let fifo = getFifo()
+
+            fs.writeFile(fifo.raw, data.data.raw, err => console.error({source: 'audio id first (write)', id, seq, err}))
+            
+            spawn('sox', ['-r', '44100', '-c', '1', '-t', 'raw', '-b', '16', '-e', 'signed', fifo.raw, fifo.wav])
+            
+            fs.readFile(fifo.wav, (err, wavData) => {
+              if(err) {
+                console.error({source: 'audio id first (read)', id, seq: data.seq, err})
+              } else {
+                res.write(wavData)
+                emitter.emit('write file', {id, data: wavData, seq})
+              }
+              setTimeout(() => {
+                returnFifo(fifo)
+              }, 4000)
+            })
           }
-          console.debug({event: `audio ${id}`, seq: data.seq, mimeType, length: data.data.length})
         })
         .on(`close ${id}`, () => {
           console.debug({type:'audio close', id})

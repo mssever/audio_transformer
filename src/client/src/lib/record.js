@@ -36,14 +36,13 @@ export class Recorder {
       type: 'audio',
       mimeType: this.mimeType,
       recorderType: StereoAudioRecorder,
-      timeSlice: 2000,
+      timeSlice: 10,
       ondataavailable: async blob => {
         let seq = this.seq++
         let data = await blob.arrayBuffer()
         console.log({data})
         console.debug({type: 'data packet', seq})
         if(this.socket.connected) {
-          // this.socket.emit('audio'+this.id, {seq, data})
           try {
             this.socket.emit('audio', {
               id: this.id,

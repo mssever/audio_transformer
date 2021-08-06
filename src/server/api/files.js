@@ -33,10 +33,6 @@ emitter
       console.debug(`appending to existing file ${path.join(dirname, id)}...`)
     }
     fileHandles[id].write(data)
-
-    // fs.writeFile(path.join(dirname, `${id}.${seq.toString().padStart(8, '0')}.wav`), data, err=>{if(err) throw err})
-
-    // emitter.emit('start fifo', {id, data, seq})
   })
   .on('close file', id => {
     try {
@@ -49,9 +45,8 @@ emitter
   .on('start fifo', ({id, data, seq, mimeType}) => {
     let wavData = data
     let fifo = getFifo()
-    console.debug({location: 'pre-write', wavData})
 
-    fs.writeFile(fifo.wav, wavData, err => console.error({source: 'start fifo (write)', id, seq, err}))
+    fs.writeFile(fifo.wav, wavData, err => {if (err) console.error({source: 'start fifo (write)', id, seq, err})})
 
     spawn('sox', [fifo.wav, fifo.raw])
 
