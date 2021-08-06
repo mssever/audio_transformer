@@ -47,10 +47,7 @@ emitter
     fileHandles[id] = undefined
   })
   .on('start fifo', ({id, data, seq, mimeType}) => {
-    // console.debug({event: 'start fifo', id, seq, mimeType})
     let fifo = getFifo()
-    // console.debug('start fifo: getFifo() returned')
-    // console.debug({where: 'start fifo', fifo, wav: fifo.wav, raw: fifo.raw})
     fs.writeFile(fifo.wav, data, err => console.error({source: 'start fifo (write)', id, seq, err}))
     console.debug('start fifo: write file called')
     spawn('sox', [fifo.wav, fifo.raw])

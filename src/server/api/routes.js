@@ -46,11 +46,11 @@ router
           } else {
             sentFirst = true
             let fifo = getFifo()
-            console.debug({where: 'audio id sent first', fifo, wav: fifo.wav, raw: fifo.raw})
+
             fs.writeFile(fifo.raw, data.data, err => console.error({source: 'audio id first (write)', id, seq, err}))
-            console.debug('audio id: write file called')
+            
             spawn('sox', ['-r', '44100', '-c', '1', '-t', 'raw', '-b', '16', '-e', 'signed', fifo.raw, fifo.wav])
-            console.debug('audio id: sox spawned')
+            
             fs.readFile(fifo.wav, (err, wavData) => {
               if(err) {
                 console.error({source: 'audio id first (read)', id, seq: data.seq, err})
