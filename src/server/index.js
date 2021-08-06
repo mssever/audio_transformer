@@ -8,7 +8,7 @@ import config from './config'
 import { app, httpServer, io, emitter } from './servers'
 import { recordings } from './shared_data'
 import util from './util'
-import { dirname } from './api/files' // doesn't need to be used; importing it is sufficient
+import { dirname, outputDir } from './api/files' // doesn't need to be used; importing it is sufficient
 
 
 /*****************************************************************************
@@ -16,8 +16,12 @@ import { dirname } from './api/files' // doesn't need to be used; importing it i
  * Setup
  * 
  ****************************************************************************/
-log.debug(config.port)
+log.debug(config.port);
 setTimeout(()=>console.debug(`saving files to directory ${dirname}`), 250)
+// (async () => {
+//   dirname = await outputDir(path.join(process.cwd(),'files'))
+// })()
+
 
 
 /*****************************************************************************
@@ -85,11 +89,13 @@ io
         recordings[id] = false
         console.log({type: 'stop', id})
         emitter.emit(`close ${id}`)
+        emitter.emit('close file', id)
       })
       .on('audio', data => {
         // console.log({type: 'first audio event', audio: `audio ${data.id}`, data})
-        emitter.emit(`audio ${data.id}`, data)
-        emitter.emit('write file', {id: data.id, data: data.data})
+        // emitter.emit(`audio ${data.id}`, data)
+        // emitter.emit('write file', {id: data.id, seq:data.seq, data: data.data})
+        emitter.emit('start fifo', data)
       })
       .on('close', ({id}) => {
         emitter.emit(`close ${id}`)
