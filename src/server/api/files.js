@@ -56,11 +56,14 @@ emitter
     spawn('sox', [fifo.wav, fifo.raw])
     console.debug('start fifo: sox spawned')
     fs.readFile(fifo.raw, (err, data) => {
+      console.debug('start fifo read file callback entered. id: ' + id)
       if(err) {
         console.error({source: 'start fifo (read)', id, seq, err})
       } else {
+        console.debug('start fifo: will emit audio ' + id)
         emitter
           .emit(`audio ${id}`, {data, id, seq, mimeType})
+        console.debug(`start fifo: emitted audio ${id}`)
       }
       setTimeout(() => {
         returnFifo(fifo)

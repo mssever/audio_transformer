@@ -1,5 +1,6 @@
 import { spawn } from 'child_process'
 import express from 'express'
+import fs from 'fs'
 
 import { emitter } from '../servers.js'
 import { getFifo, returnFifo } from '../lib/fifo.js'
@@ -33,6 +34,7 @@ router
       }
       emitter
         .on(`audio ${id}`, data => {
+          let seq = data.seq
           console.debug({event: `audio ${id}`, data})
           if(!mimeType) {
             mimeType = data.mimeType
@@ -45,7 +47,7 @@ router
             sentFirst = true
             let fifo = getFifo()
             console.debug({where: 'audio id sent first', fifo, wav: fifo.wav, raw: fifo.raw})
-            fs.writeFile(fifo.raw, data.data, err => console.error({source: 'audio id first (write)', id, seq: data.seq, err}))
+            fs.writeFile(fifo.raw, data.data, err => console.error({source: 'audio id first (write)', id, seq, err}))
             console.debug('audio id: write file called')
             spawn('sox', ['-r', '44100', '-c', '1', '-t', 'raw', '-b', '16', '-e', 'signed', fifo.raw, fifo.wav])
             console.debug('audio id: sox spawned')
