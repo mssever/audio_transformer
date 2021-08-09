@@ -33,13 +33,13 @@ router
         return
       }
       emitter
-        .on(`audio ${id}`, data => {
+        .on(`audio ${id}`, chunk => {
           if(!recordings[id]) recordings[id] = true // restore recordings if broadcaster connection is reset
-          let seq = data.seq
-          console.debug({event: `audio ${id}`, data})
+          let seq = chunk.seq
+          console.debug({event: `audio ${id}`, chunk})
 
           if(!mimeType) {
-            mimeType = data.mimeType
+            mimeType = chunk.mimeType
             res.writeHead(200, {
               'Content-Type': mimeType,
               'Cache-Control': 'no-store, max-age=0'
@@ -48,8 +48,8 @@ router
 
 
           if(alreadySentFirst) {
-            res.write(data.data.raw)
-            emitter.emit('write file', {id, data: data.data.raw, seq})
+            res.write(chunk.data.raw)
+            emitter.emit('write file', chunk, 'raw')
           } else {
             alreadySentFirst = true
             
@@ -57,7 +57,7 @@ router
 
             let fifo = getFifo()
 
-            fs.writeFile(fifo.raw, data.data.raw, err => console.error({source: 'audio id first (write)', id, seq, err}))
+            fs.writeFile(fifo.raw, chunk.data.raw, err => console.error({source: 'audio id first (write)', chunk, err}))
             
             spawn('sox', ['-r', '44100', '-c', '1', '-t', 'raw', '-b', '16', '-e', 'signed', fifo.raw, fifo.wav])
             
@@ -65,8 +65,9 @@ router
               if(err) {
                 console.error({source: 'audio id first (read)', id, seq: data.seq, err})
               } else {
-                res.write(wavData)
-                emitter.emit('write file', {id, data: wavData, seq})
+                chunk.setData({format: 'wav', data: wavData})
+                res.write(chunk.data.wav)
+                emitter.emit('write file', chunk, 'raw')
               }
               setTimeout(() => {
                 returnFifo(fifo)

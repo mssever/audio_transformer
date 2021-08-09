@@ -36,7 +36,7 @@ export class Recorder {
       type: 'audio',
       mimeType: this.mimeType,
       recorderType: StereoAudioRecorder,
-      timeSlice: 50,
+      timeSlice: 500,
       ondataavailable: async blob => {
         let seq = this.seq++
         let data = await blob.arrayBuffer()

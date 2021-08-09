@@ -24,7 +24,11 @@ export async function outputDir(dir=false) {
 }
 
 emitter
-  .on('write file', ({id, data, seq}) => {
+  .on('write file', (chunk, format) => {
+    console.debug({where: 'on write file', chunk, format})
+    let id = chunk.id
+    let data = chunk.data[format]
+    console.debug({id, data})
     if(fileHandles[id] === undefined) {
       fileHandles[id] = fs.createWriteStream(path.join(dirname, id))
       console.debug(`writing to file ${path.join(dirname, id)}...`)
@@ -42,8 +46,10 @@ emitter
     }
     fileHandles[id] = undefined
   })
-  .on('start fifo', ({id, data, seq, mimeType}) => {
-    let wavData = data
+  .on('start fifo', (chunk) => {
+    console.debug({where: 'on start fifo', chunk, wavData: chunk.data.wav.data})
+    let wavData = chunk.data.wav
+    let id = chunk.id
     let fifo = getFifo()
 
     fs.writeFile(fifo.wav, wavData, err => {if (err) console.error({source: 'start fifo (write)', id, seq, err})})
@@ -54,8 +60,9 @@ emitter
       if(err) {
         console.error({source: 'start fifo (read)', id, seq, err})
       } else {
+        chunk.setData({format: 'raw', data: rawData})
         emitter
-          .emit(`audio ${id}`, {data: {raw: rawData, wav: wavData}, id, seq, mimeType})
+          .emit(`audio ${id}`, chunk)
       }
       setTimeout(() => {
         returnFifo(fifo)

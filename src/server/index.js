@@ -8,7 +8,8 @@ import config from './config'
 import { app, httpServer, io, emitter } from './servers'
 import { recordings } from './shared_data'
 import util from './util'
-import { dirname, outputDir } from './api/files' // doesn't need to be used; importing it is sufficient
+import { dirname } from './api/files' // doesn't need to be used; importing it is sufficient
+import AudioChunk from './lib/audio_chunk'
 
 
 /*****************************************************************************
@@ -18,9 +19,6 @@ import { dirname, outputDir } from './api/files' // doesn't need to be used; imp
  ****************************************************************************/
 log.debug(config.port);
 setTimeout(()=>console.debug(`saving files to directory ${dirname}`), 250)
-// (async () => {
-//   dirname = await outputDir(path.join(process.cwd(),'files'))
-// })()
 
 
 
@@ -95,7 +93,12 @@ io
         // console.log({type: 'first audio event', audio: `audio ${data.id}`, data})
         // emitter.emit(`audio ${data.id}`, data)
         // emitter.emit('write file', {id: data.id, seq:data.seq, data: data.data})
-        emitter.emit('start fifo', data)
+        emitter
+          .emit('start fifo',
+                new AudioChunk(
+                  data.id, data.seq, data.mimeType
+                ).setData({format: 'wav', data})
+          )
       })
       .on('close', ({id}) => {
         emitter.emit(`close ${id}`)
@@ -122,3 +125,7 @@ process
   .once('SIGINT', () => util.kill_server(httpServer))
   .once('SIGHUP', () => util.kill_server(httpServer))
   .once('SIGUSR2', () => util.kill_server(httpServer)) // sent by nodemon when restarting
+  .on('uncaughtException', (err) => {
+    util.kill_server(httpServer)
+    throw (err)
+  })
