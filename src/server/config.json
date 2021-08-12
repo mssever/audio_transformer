@@ -1,7 +1,0 @@
-{
-  "port": 3605,
-  "loglevel": "debug",
-  "test": {
-    "input": "/home/scott/misc/music/Choir/He Loved Me/soprano.mp3"
-  }
-}
