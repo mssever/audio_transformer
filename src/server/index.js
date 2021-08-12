@@ -1,4 +1,5 @@
 import express from 'express'
+import RateLimit from 'express-rate-limit'
 import log from 'loglevel'
 import morgan from 'morgan'
 import path from 'path'
@@ -27,10 +28,16 @@ setTimeout(()=>console.debug(`saving files to directory ${dirname}`), 250)
  * Express
  * 
  ****************************************************************************/
+const limiter = new RateLimit({
+  windowMs: 60*1000, // 1 minute
+  max: 60
+});
+
 app
   .use(express.urlencoded({ extended: true }))
   .use(express.json())
   .use(morgan('dev'))
+  .use(limiter)
 
 app.use('/api', api)
 
