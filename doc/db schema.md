@@ -4,7 +4,7 @@
 
 - ID
 - Name
-- Users (one to many)
+- Users (many to many)
 
 ## Users
 
@@ -13,10 +13,10 @@
 - Email (unique)
 - Authentication details
 - Login details
-- Roles (one to many)
+- Roles (many to many)
 - Organizations (many to many)
 - Roles assigned on a per-organization basis (will require a correlation table)
-- Events (one to many)
+- Events (many to many)
 
 ## Roles
 
@@ -31,4 +31,4 @@
 - URL Slug
 - Scheduling details (future)
 - Requires login (future)
-- Allowed users (one to many; future)
+- Allowed users (many to many; future)
