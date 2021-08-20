@@ -34,10 +34,10 @@ const limiter = new RateLimit({
 });
 
 app
+  .use(limiter)
   .use(express.urlencoded({ extended: true }))
   .use(express.json())
   .use(morgan('dev'))
-  .use(limiter)
 
 app.use('/api', api)
 
