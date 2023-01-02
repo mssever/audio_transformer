@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/mssever/audio_transformer#readme",
   "dependencies": {
-    "babel-loader": "^8.2.2",
+    "babel-loader": "^8.3.0",
     "bootstrap": "^5.0.1",
     "css-loader": "^5.2.4",
     "dotenv": "^9.0.2",
